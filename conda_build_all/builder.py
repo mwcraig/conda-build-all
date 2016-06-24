@@ -169,7 +169,10 @@ class Builder(object):
                     # This loop breaks, selecting the matching distribution,
                     # at the first match it encounters without checking
                     # whether the package also exists on other channels.
-                    qualified_name = channel + "::" + meta.pkg_fn()
+                    if channel != "defaults":
+                        qualified_name = channel + "::" + meta.pkg_fn()
+                    else:
+                        qualified_name = meta.pkg_fn()
                     if qualified_name in index:
                         recipe_pair[1] = index[qualified_name]['channel']
                         break
