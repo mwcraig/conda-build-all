@@ -163,14 +163,16 @@ class Builder(object):
             # typically split by platform. If this changes, we would need to re-consider how this
             # is implemented.
 
-            # We temporarily workaround the index containing the channel information in the key.
-            # We should deal with this properly though.
-            index = {meta['fn']: meta for meta in index.values()}
-
             for recipe_pair in recipes:
                 meta, dist_location = recipe_pair
-                if meta.pkg_fn() in index:
-                    recipe_pair[1] = index[meta.pkg_fn()]['channel']
+                for channel in self.inspection_channels:
+                    # This loop breaks, selecting the matching distribution,
+                    # at the first match it encounters without checking
+                    # whether the package also exists on other channels.
+                    qualified_name = channel + "::" + meta.pkg_fn()
+                    if qualified_name in index:
+                        recipe_pair[1] = index[qualified_name]['channel']
+                        break
         if self.inspection_directories:
             for directory in self.inspection_directories:
                 files = glob.glob(os.path.join(directory, '*.tar.bz2'))
